@@ -236,7 +236,7 @@ public class MainActivity extends Activity implements OnClickListener {
                                     (acc_z_init > data.get(Accelerometer.LEFT_RIGHT.ordinal()) + 400))) {
                                 notice();
                             }
-                            initRefresh = 50;
+                            initRefresh = 150;
                         }
                         initRefresh --;
                     }
@@ -276,7 +276,7 @@ public class MainActivity extends Activity implements OnClickListener {
                                 if (avgAlphaSoFar > avgAlphaInit + 0.05){
                                     notice();
                                 }
-                                initRefresh2 = 75;
+                                initRefresh2 = 100;
                             }
                             initRefresh2 --;
                         }
