@@ -7,12 +7,19 @@ package com.interaxon.test.libmuse;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
+import java.util.Timer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimerTask;
 
 import android.app.Activity;
+import android.app.NotificationManager;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,8 +27,10 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import com.interaxon.libmuse.Accelerometer;
 import com.interaxon.libmuse.ConnectionState;
@@ -39,6 +48,7 @@ import com.interaxon.libmuse.MuseFileWriterFactory;
 import com.interaxon.libmuse.MuseManager;
 import com.interaxon.libmuse.MusePreset;
 import com.interaxon.libmuse.MuseVersion;
+
 
 
 /**
@@ -69,8 +79,21 @@ public class MainActivity extends Activity implements OnClickListener {
     /**
      * Connection listener updates UI with new connection status and logs it.
      */
+
+    NotificationCompat.Builder mBuilder =
+            new NotificationCompat.Builder(this)
+                    .setSmallIcon(R.drawable.ic_launcher)
+                    .setContentTitle("Focused Driving")
+                    .setContentText("WAKE UP!");
     public double acc_x_init, acc_y_init, acc_z_init;
-    boolean initClicked = false;
+    double avgAlphaInit = 0;
+    double avgAlphaSoFar = 0;
+    int numSoFar = 2;
+    int initCounter = 300;
+    int initRefresh = 0;
+    int initRefresh2 = 0;
+    boolean initClicked = false, initFirstClicked = false;
+    Timer timer = new Timer();
     class ConnectionListener extends MuseConnectionListener {
 
         final WeakReference<Activity> activityRef;
@@ -138,9 +161,6 @@ public class MainActivity extends Activity implements OnClickListener {
         @Override
         public void receiveMuseDataPacket(MuseDataPacket p) {
             switch (p.getPacketType()) {
-                case EEG:
-                    updateEeg(p.getValues());
-                    break;
                 case ACCELEROMETER:
                     updateAccelerometer(p.getValues());
                     break;
@@ -180,8 +200,8 @@ public class MainActivity extends Activity implements OnClickListener {
                         acc_y.setText(String.format(
                             "%6.2f", data.get(Accelerometer.UP_DOWN.ordinal())));
                         acc_z.setText(String.format(
-                            "%6.2f", data.get(Accelerometer.LEFT_RIGHT.ordinal())));
-                        if (initClicked == true){
+                                "%6.2f", data.get(Accelerometer.LEFT_RIGHT.ordinal())));
+                        if (initClicked){
                             TextView acc_x_init_txt = (TextView) findViewById(R.id.acc_x_init);
                             TextView acc_y_init_txt = (TextView) findViewById(R.id.acc_y_init);
                             TextView acc_z_init_txt = (TextView) findViewById(R.id.acc_z_init);
@@ -197,34 +217,23 @@ public class MainActivity extends Activity implements OnClickListener {
                                     "%6.2f", acc_z_init));
                             initClicked = false;
                         }
+                        if (initRefresh == 0) {
+                            if (initFirstClicked && ((acc_x_init > data.get(Accelerometer.FORWARD_BACKWARD.ordinal()) + 400) ||
+                                    (acc_x_init < data.get(Accelerometer.FORWARD_BACKWARD.ordinal()) - 400)||
+                            (acc_z_init < data.get(Accelerometer.LEFT_RIGHT.ordinal()) - 400 )||
+                                    (acc_z_init > data.get(Accelerometer.LEFT_RIGHT.ordinal()) + 400))) {
+                                notice();
+                            }
+                            initRefresh = 50;
+                        }
+                        initRefresh --;
                     }
                 });
 
             }
         }
 
-        private void updateEeg(final ArrayList<Double> data) {
-            Activity activity = activityRef.get();
-            if (activity != null) {
-                activity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                         TextView tp9 = (TextView) findViewById(R.id.eeg_tp9);
-                         TextView fp1 = (TextView) findViewById(R.id.eeg_fp1);
-                         TextView fp2 = (TextView) findViewById(R.id.eeg_fp2);
-                         TextView tp10 = (TextView) findViewById(R.id.eeg_tp10);
-                         tp9.setText(String.format(
-                            "%6.2f", data.get(Eeg.TP9.ordinal())));
-                         fp1.setText(String.format(
-                            "%6.2f", data.get(Eeg.FP1.ordinal())));
-                         fp2.setText(String.format(
-                            "%6.2f", data.get(Eeg.FP2.ordinal())));
-                         tp10.setText(String.format(
-                            "%6.2f", data.get(Eeg.TP10.ordinal())));
-                    }
-                });
-            }
-        }
+
 
         private void updateAlphaRelative(final ArrayList<Double> data) {
             Activity activity = activityRef.get();
@@ -232,22 +241,42 @@ public class MainActivity extends Activity implements OnClickListener {
                 activity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        TextView elem1 = (TextView) findViewById(R.id.elem1);
-                        TextView elem2 = (TextView) findViewById(R.id.elem2);
-                        TextView elem3 = (TextView) findViewById(R.id.elem3);
-                        TextView elem4 = (TextView) findViewById(R.id.elem4);
-                        elem1.setText(String.format(
+                        TextView aRelative1 = (TextView) findViewById(R.id.aRelative1);
+                        TextView aRelative2 = (TextView) findViewById(R.id.aRelative2);
+                        TextView aRelative3 = (TextView) findViewById(R.id.aRelative3);
+                        TextView aRelative4 = (TextView) findViewById(R.id.aRelative4);
+                        aRelative1.setText(String.format(
                                 "%6.2f", data.get(Eeg.TP9.ordinal())));
-                        elem2.setText(String.format(
+                        aRelative2.setText(String.format(
                                 "%6.2f", data.get(Eeg.FP1.ordinal())));
-                        elem3.setText(String.format(
+                        aRelative3.setText(String.format(
                                 "%6.2f", data.get(Eeg.FP2.ordinal())));
-                        elem4.setText(String.format(
+                        aRelative4.setText(String.format(
                                 "%6.2f", data.get(Eeg.TP10.ordinal())));
+                        avgAlphaSoFar = (data.get(Eeg.TP10.ordinal())+data.get(Eeg.TP9.ordinal())+
+                                avgAlphaSoFar*(numSoFar-2))/numSoFar;
+                        numSoFar += 2;
+                        if (initCounter > 0) {
+                            avgAlphaInit = avgAlphaSoFar;
+                            initCounter--;
+                        } else {
+                            if (initRefresh2 == 0){
+                                if (avgAlphaSoFar > avgAlphaInit + 0.05){
+                                    notice();
+                                }
+                                initRefresh2 = 75;
+                            }
+                            initRefresh2 --;
+                        }
+                        TextView avgAlphaInit_txt = (TextView) findViewById(R.id.avgAlphaInit);
+                        TextView avgAlphaSoFar_txt = (TextView) findViewById(R.id.avgAlphaSoFar);
+                        avgAlphaInit_txt.setText(String.format("%6.2f", avgAlphaInit));
+                        avgAlphaSoFar_txt.setText(String.format("%6.2f", avgAlphaSoFar));
                     }
                 });
             }
         }
+
 
         public void setFileWriter(MuseFileWriter fileWriter) {
             this.fileWriter  = fileWriter;
@@ -273,15 +302,11 @@ public class MainActivity extends Activity implements OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Button refreshButton = (Button) findViewById(R.id.refresh);
+        ImageButton refreshButton = (ImageButton) findViewById(R.id.refresh);
         refreshButton.setOnClickListener(this);
-        Button connectButton = (Button) findViewById(R.id.connect);
+        ToggleButton connectButton = (ToggleButton) findViewById(R.id.connect);
         connectButton.setOnClickListener(this);
-        Button disconnectButton = (Button) findViewById(R.id.disconnect);
-        disconnectButton.setOnClickListener(this);
-        Button pauseButton = (Button) findViewById(R.id.pause);
-        pauseButton.setOnClickListener(this);
-        Button initButton = (Button) findViewById(R.id.Init);
+        ImageButton initButton = (ImageButton) findViewById(R.id.Init);
         initButton.setOnClickListener(this);
         fileWriter = MuseFileWriterFactory.getMuseFileWriter(new File(
                         getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS),
@@ -308,6 +333,11 @@ public class MainActivity extends Activity implements OnClickListener {
         }
         else if (v.getId() == R.id.Init){
             initClicked = true;
+            initFirstClicked = true;
+            numSoFar = 2;
+            initCounter = 300;
+            avgAlphaSoFar = 0.0;
+            avgAlphaInit = 0.0;
         }
         else if (v.getId() == R.id.connect) {
             List<Muse> pairedMuses = MuseManager.getPairedMuses();
@@ -339,35 +369,29 @@ public class MainActivity extends Activity implements OnClickListener {
                 }
             }
         }
-        else if (v.getId() == R.id.disconnect) {
-            if (muse != null) {
-                /**
-                 * true flag will force libmuse to unregister all listeners,
-                 * BUT AFTER disconnecting and sending disconnection event.
-                 * If you don't want to receive disconnection event (for ex.
-                 * you call disconnect when application is closed), then
-                 * unregister listeners first and then call disconnect:
-                 * muse.unregisterAllListeners();
-                 * muse.disconnect(false);
-                 */
-                muse.disconnect(true);
-                fileWriter.addAnnotationString(1, "Disconnect clicked");
-                fileWriter.flush();
-                fileWriter.close();
-            }
-        }
-        else if (v.getId() == R.id.pause) {
-            dataTransmission = !dataTransmission;
-            if (muse != null) {
-                muse.enableDataTransmission(dataTransmission);
-            }
+    }
+    public void notice() {
+        // Sets an ID for the notification
+        int mNotificationId = 001;
+        // Gets an instance of the NotificationManager service
+        NotificationManager mNotifyMgr =
+                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        // Builds the notification and issues it.
+        mNotifyMgr.notify(mNotificationId, mBuilder.build());
+        Spinner musesSpinner = (Spinner) findViewById(R.id.muses_spinner);
+        try {
+            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+            Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
+            mBuilder.setVibrate(new long[]{1000, 1000, 1000});
+            r.play();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
-
     private void configure_library() {
         muse.registerConnectionListener(connectionListener);
         muse.registerDataListener(dataListener,
-                                  MuseDataPacketType.ACCELEROMETER);
+                MuseDataPacketType.ACCELEROMETER);
         muse.registerDataListener(dataListener,
                                   MuseDataPacketType.EEG);
         muse.registerDataListener(dataListener,
@@ -376,6 +400,7 @@ public class MainActivity extends Activity implements OnClickListener {
                                   MuseDataPacketType.ARTIFACTS);
         muse.registerDataListener(dataListener,
                                   MuseDataPacketType.BATTERY);
+        //muse.registerDataListener(dataListener, MuseDataPacketType.MELLOW);
         muse.setPreset(MusePreset.PRESET_14);
         muse.enableDataTransmission(dataTransmission);
     }
@@ -399,3 +424,66 @@ public class MainActivity extends Activity implements OnClickListener {
         return super.onOptionsItemSelected(item);
     }
 }
+
+//// Sets an ID for the notification
+//int mNotificationId = 001;
+//// Gets an instance of the NotificationManager service
+//NotificationManager mNotifyMgr =
+//        (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+//// Builds the notification and issues it.
+//mNotifyMgr.notify(mNotificationId, mBuilder.build());
+//        Spinner musesSpinner = (Spinner) findViewById(R.id.muses_spinner);
+//        try {
+//        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+//        Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
+//        r.play();
+//        } catch (Exception e) {
+//        e.printStackTrace();
+//        }
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//        with vibrate:
+//
+//
+//
+
+//// Sets an ID for the notification
+//        int mNotificationId = 001;
+//// Gets an instance of the NotificationManager service
+//        NotificationManager mNotifyMgr =
+//        (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+//// Builds the notification and issues it.
+//        mNotifyMgr.notify(mNotificationId, mBuilder.build());
+//        Spinner musesSpinner = (Spinner) findViewById(R.id.muses_spinner);
+//        try {
+//        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+//        Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
+//        mBuilder.setVibrate(new long[] { 1000, 1000, 1000, 1000, 1000 });
+//        r.play();
+//        } catch (Exception e) {
+//        e.printStackTrace();
+//        }
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//        NotificationCompat.Builder mBuilder =
+//        new NotificationCompat.Builder(this)
+//        .setSmallIcon(R.drawable.ic_launcher)
+//        .setContentTitle("Focused Driving")
+//        .setContentText("WAKE UP!");
+

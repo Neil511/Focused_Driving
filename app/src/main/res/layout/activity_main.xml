@@ -6,30 +6,62 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+	<LinearLayout
+		android:orientation="vertical"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent">
+
+		<ImageButton
+			android:layout_width="match_parent"
+			android:layout_height="382dp"
+			android:id="@+id/Init"
+			android:src="@drawable/initializeicon"
+			android:scaleType="fitCenter"
+			android:nestedScrollingEnabled="false"
+			android:background="#FFF"
+			android:padding="15dp"
+			android:adjustViewBounds="true"
+			android:clickable="true" />
+
+		<LinearLayout
+			android:orientation="horizontal"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent">
+
+			<ToggleButton
+                android:layout_width="195dp"
+                android:layout_height="195dp"
+                android:id="@+id/connect"
+                android:scaleType="fitCenter"
+                android:background="@drawable/connecticon"
+                android:textOff=""
+				android:textOn=""
+				android:padding="15dp"
+                android:adjustViewBounds="true"
+                android:clickable="true"
+                android:layout_gravity="right"
+				android:animateFirstView="false" />
+
+			<ImageButton
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/refresh"
+                android:src="@drawable/refreshicon"
+                android:scaleType="fitCenter"
+                android:nestedScrollingEnabled="false"
+                android:background="#FFF"
+                android:padding="15dp"
+                android:adjustViewBounds="true"
+                android:clickable="true" />
+		</LinearLayout>
+	</LinearLayout>
+
 	<Spinner
 		android:id="@+id/muses_spinner"
 		android:layout_width="match_parent"
-		android:layout_height="60dp" />
-	<LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="45dp"
-        android:orientation="horizontal" >
-        <Button
-            android:id="@+id/refresh"
-            android:layout_width="100dp"
-            android:layout_height="40dp"
-            android:text="@string/refresh" />
-	    <Button
-	        android:id="@+id/connect"
-	        android:layout_width="100dp"
-	        android:layout_height="40dp"
-	        android:text="@string/connect" />
-	    <Button
-	        android:id="@+id/disconnect"
-	        android:layout_width="120dp"
-	        android:layout_height="40dp"
-	        android:text="@string/disconnect" />
-	</LinearLayout>
+		android:layout_height="60dp"
+		android:spinnerMode="dropdown" />
+
 	<TextView
 		android:layout_width="match_parent"
 		android:layout_height="31dp"
@@ -42,46 +74,6 @@
 		android:layout_height="42dp"
 		android:textSize="16sp"
 		android:text="@string/undefined" />
-	<TextView
-        android:layout_width="match_parent"
-        android:layout_height="35dp"
-		android:textSize="16sp"
-        android:text="@string/eeg"
-		android:id="@+id/eeg" />
-	<LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:orientation="horizontal" >
-        <TextView
-            android:id="@+id/eeg_tp9"
-	        android:layout_width="match_parent"
-	        android:layout_height="match_parent"
-	        android:layout_weight="1"
-	        android:textSize="16sp"
-	        android:text="@string/init_val" />
-        <TextView
-            android:id="@+id/eeg_fp1"
-	        android:layout_width="match_parent"
-	        android:layout_height="match_parent"
-	        android:layout_weight="1"
-	        android:textSize="16sp"
-	        android:text="@string/init_val" />
-        <TextView
-            android:id="@+id/eeg_fp2"
-	        android:layout_width="match_parent"
-	        android:layout_height="match_parent"
-	        android:layout_weight="1"
-	        android:textSize="16sp"
-	        android:text="@string/init_val" />
-        <TextView
-            android:id="@+id/eeg_tp10"
-	        android:layout_width="match_parent"
-	        android:layout_height="match_parent"
-	        android:layout_weight="1"
-	        android:textSize="16sp"
-	        android:text="@string/init_val" />
-    </LinearLayout>
 
 	<TextView
    		android:layout_width="match_parent"
@@ -142,153 +134,49 @@
 
 		</LinearLayout>
 
-	<EditText
-		android:layout_width="match_parent"
+	<TextView
+		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:id="@+id/editText11"
-		android:layout_gravity="center_horizontal"
-		android:text="Gamma_Absolute:" />
+		android:textSize="16sp"
+		android:text="avgSoFar + avgInit"
+		android:id="@+id/textView" />
 
 	<LinearLayout
-		android:orientation="horizontal"
 		android:layout_width="match_parent"
-		android:layout_height="42dp"
-		android:weightSum="1">
+		android:layout_height="38dp"
+		android:orientation="horizontal" >
 
-		<EditText
-			android:layout_width="58dp"
-			android:layout_height="wrap_content"
-			android:inputType="numberDecimal"
-			android:ems="10"
-			android:id="@+id/gAbsolute4"
-			android:text="0.0"
-			android:layout_weight="0.19" />
+		<TextView
+			android:id="@+id/avgAlphaInit"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:layout_weight="1"
+			android:textSize="16sp"
+			android:text="@string/init_val" />
 
-		<EditText
-			android:layout_width="58dp"
-			android:layout_height="wrap_content"
-			android:inputType="numberDecimal"
-			android:ems="10"
-			android:id="@+id/gAbsolute1"
-			android:text="0.0"
-			android:layout_weight="0.31" />
+		<TextView
+			android:id="@+id/avgAlphaSoFar"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:layout_weight="1"
+			android:textSize="16sp"
+			android:text="@string/init_val" />
 
-		<EditText
-			android:layout_width="58dp"
-			android:layout_height="wrap_content"
-			android:inputType="numberDecimal"
-			android:ems="10"
-			android:id="@+id/gAbsolute2"
-			android:text="0.0"
-			android:layout_weight="0.30" />
+		<TextView
+			android:id="@+id/textView4"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:layout_weight="1"
+			android:textSize="16sp"
+			android:text="@string/init_val" />
 
-		<EditText
-			android:layout_width="58dp"
-			android:layout_height="wrap_content"
-			android:inputType="numberDecimal"
-			android:ems="10"
-			android:id="@+id/gAbsolute3"
-			android:text="0.0"
-			android:layout_weight="0.30" />
-	</LinearLayout>
-
-	<EditText
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:id="@+id/editText"
-		android:layout_gravity="center_horizontal"
-		android:text="Gamma_Relative:" />
-
-	<LinearLayout
-		android:orientation="horizontal"
-		android:layout_width="match_parent"
-		android:layout_height="42dp"
-		android:weightSum="1">
-
-		<EditText
-			android:layout_width="58dp"
-			android:layout_height="wrap_content"
-			android:inputType="numberDecimal"
-			android:ems="10"
-			android:id="@+id/gRelative4"
-			android:text="0.0"
-			android:layout_weight="0.21" />
-
-		<EditText
-			android:layout_width="58dp"
-			android:layout_height="wrap_content"
-			android:inputType="numberDecimal"
-			android:ems="10"
-			android:id="@+id/gRelative1"
-			android:text="0.0"
-			android:layout_weight="0.35" />
-
-		<EditText
-			android:layout_width="58dp"
-			android:layout_height="wrap_content"
-			android:inputType="numberDecimal"
-			android:ems="10"
-			android:id="@+id/gRelative2"
-			android:text="0.0"
-			android:layout_weight="0.30" />
-
-		<EditText
-			android:layout_width="58dp"
-			android:layout_height="wrap_content"
-			android:inputType="numberDecimal"
-			android:ems="10"
-			android:id="@+id/gRelative3"
-			android:text="0.0"
-			android:layout_weight="0.21" />
-	</LinearLayout>
-
-	<EditText
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:id="@+id/editText6"
-		android:layout_gravity="center_horizontal"
-		android:text="Alpha_Absolute:" />
-
-	<LinearLayout
-		android:orientation="horizontal"
-		android:layout_width="match_parent"
-		android:layout_height="42dp"
-		android:weightSum="1">
-
-		<EditText
-			android:layout_width="58dp"
-			android:layout_height="wrap_content"
-			android:inputType="numberDecimal"
-			android:ems="10"
-			android:id="@+id/aAbsolute4"
-			android:text="0.0"
-			android:layout_weight="0.27" />
-
-		<EditText
-			android:layout_width="58dp"
-			android:layout_height="wrap_content"
-			android:inputType="numberDecimal"
-			android:ems="10"
-			android:id="@+id/aAbsolute1"
-			android:text="0.0"
-			android:layout_weight="0.53" />
-
-		<EditText
-			android:layout_width="58dp"
-			android:layout_height="wrap_content"
-			android:inputType="numberDecimal"
-			android:ems="10"
-			android:id="@+id/aAbsolute2"
-			android:text="0.0"
-			android:layout_weight="0.34" />
-
-		<EditText
-			android:layout_width="104dp"
-			android:layout_height="wrap_content"
-			android:inputType="numberDecimal"
-			android:ems="10"
-			android:id="@+id/aAbsolute3"
-			android:text="0.0" />
+		<TextView
+			android:id="@+id/textView5"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:layout_weight="1"
+			android:textSize="16sp"
+			android:text="@string/init_val" />
 	</LinearLayout>
 
 	<TextView
@@ -345,23 +233,6 @@
 		android:layout_weight="1"
 		android:textSize="16sp"
 		android:text="@string/undefined" />
-	<LinearLayout
-	        android:layout_width="match_parent"
-	        android:layout_height="45dp"
-	        android:orientation="horizontal" >
-	        <Button
-	            android:id="@+id/pause"
-	            android:layout_width="150dp"
-	            android:layout_height="40dp"
-	            android:text="@string/pause" />
-
-			<Button
-                style="?android:attr/buttonStyleSmall"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Initialize"
-                android:id="@+id/Init" />
-		</LinearLayout>
 
 </LinearLayout>
 </ScrollView>
