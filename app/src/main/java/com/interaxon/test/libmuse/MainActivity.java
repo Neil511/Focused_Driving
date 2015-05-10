@@ -11,6 +11,17 @@ import java.util.Timer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TimerTask;
+import java.util.*;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Bundle;
+import android.app.Activity;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 import android.app.Activity;
 import android.app.NotificationManager;
@@ -92,7 +103,8 @@ public class MainActivity extends Activity implements OnClickListener {
     int initCounter = 300;
     int initRefresh = 0;
     int initRefresh2 = 0;
-    boolean initClicked = false, initFirstClicked = false;
+    boolean initClicked = false, initFirstClicked = false, onClickConnect = false,
+    onClickInit = false;
     Timer timer = new Timer();
     class ConnectionListener extends MuseConnectionListener {
 
@@ -332,6 +344,7 @@ public class MainActivity extends Activity implements OnClickListener {
             musesSpinner.setAdapter(adapterArray);
         }
         else if (v.getId() == R.id.Init){
+            onClickInit = true;
             initClicked = true;
             initFirstClicked = true;
             numSoFar = 2;
